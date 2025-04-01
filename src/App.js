@@ -1,11 +1,10 @@
-import React, { useState, useEffect, useRef } from "react";
-import { Card, CardContent } from "./components/ui/card";
+import React, { useState, useEffect,  } from "react";
 import { Input } from "./components/ui/input";
 import { Button } from "./components/ui/button";
 import { Switch } from "./components/ui/switch";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./components/ui/dialog";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "./components/ui/tabs";
 import { Moon, Sun, HelpCircle, Pencil, Plus, Trash2 } from "lucide-react"
+
+
 
 
 const DEFAULT_LOKASJON = "Lokalitet1";
@@ -21,7 +20,8 @@ export default function ForKalkisPreview() {
   const [darkMode, setDarkMode] = useState(false);
   const [toast, setToast] = useState("");
   const [tempLokasjonNavn, setTempLokasjonNavn] = useState("");
-  const inputRef = useRef(null);
+  const [redigerer, setRedigerer] = useState("");
+
 
 
 
@@ -223,67 +223,123 @@ export default function ForKalkisPreview() {
         </div>
       </div>
   
-      <div className="mb-4">
-      <label className="block text-sm font-medium mb-1">Velg lokasjon</label>
-      <div className="flex gap-2 flex-wrap">
-        <select
-          value={aktivLokasjon}
-          onChange={(e) => setAktivLokasjon(e.target.value)}
-          className="p-2 border rounded bg-white text-black dark:bg-gray-800 dark:text-white dark:border-gray-600 appearance-none transition-colors duration-300"
-          >
-          {Object.keys(lokasjoner).map((lokasjon) => (
-            <option
-              key={lokasjon}
-              value={lokasjon}
-              className="bg-white text-black dark:bg-gray-700 dark:text-white"
-            >
-              {lokasjon}
-            </option>
-                    ))}
-                    </select>
-                    <Input
-                      ref={inputRef}
-                      value={tempLokasjonNavn || aktivLokasjon}
-                      onChange={(e) => setTempLokasjonNavn(e.target.value)}
-                      onBlur={() => oppdaterLokasjonNavn(aktivLokasjon, tempLokasjonNavn)}
-                      className="w-40 bg-white text-black dark:bg-gray-800 dark:text-white border dark:border-gray-600 transition-colors duration-300"
-                    />
-                    <Button onClick={leggTilLokasjon} className="bg-green-600 text-white hover:bg-green-700">
-                      + Lokasjon
-                    </Button>
-                    <Button onClick={() => fjernLokasjon(aktivLokasjon)} className="bg-red-600 text-white hover:bg-red-700">
-                      Slett lokasjon
-                    </Button>
-                  </div>
-                </div>
-               
-              );
-  
-      <div className="flex gap-4 mb-4">
-        <div className="flex items-center gap-2">
-          <span>Dager:</span>
-          <Input
-            type="number"
-            value={dager}
-            onChange={(e) => setDager(Number(e.target.value))}
-            className="w-24 bg-white text-black dark:bg-gray-800 dark:text-white border dark:border-gray-600 transition-colors duration-300"
-          />
-        </div>
-        <div className="flex items-center gap-2">
-          <span>Faktor:</span>
-          <Input
-            type="number"
-            step="0.01"
-            value={faktor}
-            onChange={(e) => setFaktor(Number(e.target.value))}
-            className="w-24 bg-white text-black dark:bg-gray-800 dark:text-white border dark:border-gray-600 transition-colors duration-300"
-          />
-        </div>
-        <label className="flex items-center gap-2 cursor-pointer select-none">
-  <Switch checked={brukMerder} onCheckedChange={setBrukMerder} />
-  <span className="text-sm font-medium">Bruk merder</span>
-</label>
+      <div className="mb-4 space-y-1">
+  <label className="block text-sm font-medium">Velg lokasjon</label>
+  <div className="flex flex-wrap gap-2">
+    {Object.keys(lokasjoner).map((navn) => (
+      <div
+      key={navn}
+      className={`flex items-center gap-2 px-3 py-1 rounded border cursor-pointer
+        ${navn === aktivLokasjon 
+          ? "bg-blue-600 text-white" 
+          : "bg-gray-200 text-black hover:bg-gray-300 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
+        }`}
+    >
+    
+        {redigerer === navn ? (
+         <input
+         className="w-32 h-8 px-2 rounded border bg-white text-black dark:bg-gray-800 dark:text-white dark:border-gray-600"
+         value={tempLokasjonNavn}
+         onChange={(e) => setTempLokasjonNavn(e.target.value)}
+         onBlur={() => {
+           oppdaterLokasjonNavn(navn, tempLokasjonNavn);
+           setRedigerer("");
+         }}
+         onKeyDown={(e) => {
+           if (e.key === "Enter") {
+             oppdaterLokasjonNavn(navn, tempLokasjonNavn);
+             setRedigerer("");
+           } else if (e.key === "Escape") {
+             setRedigerer("");
+           }
+         }}
+         autoFocus
+       />
+       
+        ) : (
+          <span className="cursor-pointer" onClick={() => setAktivLokasjon(navn)}>
+            {navn}
+          </span>
+        )}
+        <button
+          className="p-1 hover:bg-gray-300 rounded"
+          onClick={() => {
+            setRedigerer(navn);
+            setTempLokasjonNavn(navn);
+          }}
+        >
+          <Pencil size={14} />
+        </button>
+        <button
+          className="p-1 hover:bg-red-200 rounded"
+          onClick={() => fjernLokasjon(navn)}
+        >
+          <Trash2 size={14} />
+        </button>
       </div>
+    ))}
+    <button
+      onClick={leggTilLokasjon}
+      className="flex items-center gap-1 px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700"
+    >
+      <Plus size={16} /> Ny lokasjon
+    </button>
+  </div>
+</div>
+
+               
+              
+  
+<div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-5">
+  <div className="flex flex-wrap gap-4">
+    <div className="flex items-center gap-2">
+      <span>Dager:</span>
+      <Input
+        type="number"
+        value={dager}
+        onChange={(e) => setDager(Number(e.target.value))}
+        className="w-24 bg-white text-black dark:bg-gray-800 dark:text-white border dark:border-gray-600 transition-colors duration-300"
+      />
+    </div>
+    <div className="flex items-center gap-2">
+      <span>Faktor:</span>
+      <Input
+        type="number"
+        step="0.01"
+        value={faktor}
+        onChange={(e) => setFaktor(Number(e.target.value))}
+        className="w-24 bg-white text-black dark:bg-gray-800 dark:text-white border dark:border-gray-600 transition-colors duration-300"
+      />
+    </div>
+    <label className="flex items-center gap-2 cursor-pointer select-none">
+      <Switch checked={brukMerder} onCheckedChange={setBrukMerder} />
+      <span className="text-sm font-medium">Bruk merder</span>
+    </label>
+  </div>
+
+  <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded text-sm space-y-1">
+    <h2 className="font-semibold mb-1">Totaler per fôrtype:</h2>
+    {Object.entries(summer).map(([fortype, kg]) => {
+      const antallSekker = Math.ceil(kg / 750);
+      const levertKg = antallSekker * 750;
+      return (
+        <p key={fortype}>
+          {fortype}: {kg} kg → {antallSekker} sekker → Levert: {levertKg} kg
+        </p>
+      );
+    })}
+    <p className="mt-1 font-bold">Total fôrbehov: {totalSum} kg</p>
+    <p className="font-bold">
+      Faktisk bestilling:{" "}
+      {Object.entries(summer).reduce(
+        (sum, [, kg]) => sum + Math.ceil(kg / 750) * 750,
+        0
+      )}{" "}
+      kg
+    </p>
+  </div>
+</div>
+
   
       {siloer.map((silo, idx) => (
   <div
@@ -293,13 +349,13 @@ export default function ForKalkisPreview() {
     <div className="flex justify-between items-center mb-2">
       <h3 className="text-lg font-semibold">{silo.navn}</h3>
       <Button
-        size="sm"
-        variant="ghost"
-        className="text-sm text-blue-700 dark:text-blue-300 hover:underline"
-        onClick={() => toggleDetaljer(idx)}
-      >
-        {visDetaljer.includes(idx) ? "Skjul detaljer" : "Vis detaljer"}
-      </Button>
+  size="sm"
+  variant="ghost"
+  onClick={() => toggleDetaljer(idx)}
+>
+  {visDetaljer.includes(idx) ? "Skjul utregning" : "Vis utregning"}
+</Button>
+
     </div>
 
     <Input
@@ -309,67 +365,73 @@ export default function ForKalkisPreview() {
       className="mb-2 bg-white text-black dark:bg-gray-700 dark:text-white border dark:border-gray-600 transition-colors duration-300"
     />
 
-    {visDetaljer.includes(idx) && (
-      <>
-        {brukMerder ? (
-          silo.merder.map((merde, j) => (
-            <div key={j} className="flex gap-2 items-center mb-2">
-              <Input
-                value={merde.navn}
-                onChange={(e) => oppdaterMerdeNavn(idx, j, e.target.value)}
-                className="w-32 bg-white text-black dark:bg-gray-700 dark:text-white border dark:border-gray-600 transition-colors duration-300"
-              />
-              <Input
-                type="number"
-                value={merde.dagligForbruk}
-                onChange={(e) => {
-                  const ny = [...siloer];
-                  ny[idx].merder[j].dagligForbruk = Number(e.target.value);
-                  oppdaterSiloer(ny);
-                }}
-                className="w-24 bg-white text-black dark:bg-gray-700 dark:text-white border dark:border-gray-600 transition-colors duration-300"
-              />
-              <span className="text-sm">kg</span>
-              <Button variant="ghost" size="sm" onClick={() => fjernMerde(idx, j)}>
-                X
-              </Button>
-            </div>
-          ))
-        ) : (
-          <div className="flex gap-2 items-center mb-2">
-            <span className="w-28">Daglig forbruk</span>
-            <Input
-              type="number"
-              value={silo.manueltDagligForbruk}
-              onChange={(e) => {
-                const ny = [...siloer];
-                ny[idx].manueltDagligForbruk = Number(e.target.value);
-                oppdaterSiloer(ny);
-              }}
-              className="w-24 bg-white text-black dark:bg-gray-700 dark:text-white border dark:border-gray-600 transition-colors duration-300"
-            />
-            <span className="text-sm">kg</span>
-          </div>
-        )}
 
-        {brukMerder && (
-          <Button
-            size="sm"
-            className="bg-green-700 text-white hover:bg-green-800 mt-1"
-            onClick={() => leggTilMerde(idx)}
-          >
-            + Merde
-          </Button>
-        )}
-      </>
-    )}
+{brukMerder ? (
+  <>
+    {silo.merder.map((merde, j) => (
+      <div key={j} className="flex gap-2 items-center mb-2">
+        <Input
+          value={merde.navn}
+          onChange={(e) => oppdaterMerdeNavn(idx, j, e.target.value)}
+          className="w-32 bg-white text-black dark:bg-gray-700 dark:text-white border dark:border-gray-600 transition-colors duration-300"
+        />
+        <Input
+          type="number"
+          value={merde.dagligForbruk}
+          onChange={(e) => {
+            const ny = [...siloer];
+            ny[idx].merder[j].dagligForbruk = Number(e.target.value);
+            oppdaterSiloer(ny);
+          }}
+          className="w-24 bg-white text-black dark:bg-gray-700 dark:text-white border dark:border-gray-600 transition-colors duration-300"
+        />
+        <span className="text-sm">kg</span>
+        <Button
+          size="icon"
+          variant="ghost"
+          onClick={() => fjernMerde(idx, j)}
+          className="text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+        >
+          ✕
+        </Button>
+      </div>
+    ))}
+    <Button
+      size="sm"
+      className="bg-green-700 text-white hover:bg-green-800 mt-1"
+      onClick={() => leggTilMerde(idx)}
+    >
+      + Merde
+    </Button>
+  </>
+) : (
+  <div className="flex gap-2 items-center mb-2">
+    <span className="w-24">Daglig forbruk</span>
+    <Input
+      type="number"
+      value={silo.manueltDagligForbruk}
+      onChange={(e) => {
+        const ny = [...siloer];
+        ny[idx].manueltDagligForbruk = Number(e.target.value);
+        oppdaterSiloer(ny);
+      }}
+      className="w-24 bg-white text-black dark:bg-gray-700 dark:text-white border dark:border-gray-600 transition-colors duration-300"
+    />
+    <span className="text-sm">kg</span>
+  </div>
+)}
 
-    <div className="mt-2">
-      <p>
-        ({beregnSum(silo)} kg) × {faktor} = <strong>{beregnTotal(silo)} kg</strong> →{" "}
-        {Math.ceil(beregnTotal(silo) / 750)} sekker
-      </p>
-    </div>
+
+
+
+{visDetaljer.includes(idx) && (
+  <div className="mt-2">
+    <p>
+      ({beregnSum(silo)} kg) × {faktor} = <strong>{beregnTotal(silo)} kg</strong> → {Math.ceil(beregnTotal(silo) / 750)} sekker
+    </p>
+  </div>
+)}
+
 
     <Button variant="ghost" size="sm" onClick={() => fjernSilo(idx)}>
       Fjern silo
@@ -381,31 +443,57 @@ export default function ForKalkisPreview() {
       <><Button onClick={leggTilSilo} className="bg-green-800 text-white hover:bg-green-00 mb-4">
     + Legg til silo
   </Button><div className="bg-gray-100 dark:bg-gray-800 p-4 rounded transition-colors duration-300">
-      <h2 className="text-xl font-semibold mb-2">Totaler per fôrtype</h2>
-      {Object.entries(summer).map(([fortype, kg]) => (
-        <p key={fortype}>
-          {fortype}: {kg} kg → {Math.ceil(kg / 750)} sekker
-        </p>
-      ))}
-      <p className="mt-2 font-bold">Total fôrbehov: {totalSum} kg</p>
-    </div></>
+  <h2 className="text-xl font-semibold mb-2">Totaler per fôrtype</h2>
+  {Object.entries(summer).map(([fortype, kg]) => {
+    const antallSekker = Math.ceil(kg / 750);
+    const levertKg = antallSekker * 750;
+    return (
+      <p key={fortype}>
+        {fortype}: {kg} kg → {antallSekker} sekker → Levert: {levertKg} kg
+      </p>
+    );
+  })}
+  <p className="mt-2 font-bold">
+    Total fôrbehov: {totalSum} kg
+  </p>
+  <p className="font-bold">
+    Faktisk bestilling:{" "}
+    {Object.entries(summer).reduce(
+      (sum, [, kg]) => sum + Math.ceil(kg / 750) * 750,
+      0
+    )}{" "}
+    kg
+  </p>
+</div>
+</>
   
-      {visHjelp && (
-        <div className="mt-6 text-sm text-gray-800 dark:text-gray-200 border dark:border-gray-600 rounded p-4 transition-colors duration-300">
-          <p className="mb-2 font-semibold">Hvorfor rundes det til 750 kg?</p>
-          <p>Fordi sekker leveres i 750 kg bulk, og bestilling skjer i hele sekker.</p>
-          <p className="mt-1">Små avvik kan forekomme, men de er innenfor toleransegrensen.</p>
-          <hr className="my-2" />
-          <p className="mb-2 font-semibold">Hvordan bruke kalkulatoren</p>
-          <ul className="list-disc ml-4">
-            <li>Legg inn ønsket antall dager og bufferfaktor</li>
-            <li>Registrer siloer og tilhørende fôrtype og forbruk</li>
-            <li>Klikk "+ Merde" for å registrere merder</li>
-            <li>Systemet summerer og beregner bestilling</li>
-          </ul>
-          <p className="mt-2">Kontakt utvikler ved spørsmål eller forbedringsforslag.</p>
-        </div>
-      )}
+{visHjelp && (
+  <div className="mt-6 text-sm text-gray-800 dark:text-gray-200 border dark:border-gray-600 rounded p-4 transition-colors duration-300">
+    <p className="mb-2 font-semibold">Hvordan bruke kalkulatoren</p>
+    <ul className="list-disc ml-4 mb-2">
+      <li>Legg inn ønsket antall dager og bufferfaktor.</li>
+      <li>Registrer siloer med tilhørende fôrtype og daglig forbruk.</li>
+      <li>Dersom du bruker <strong>merdebasert fordeling</strong>, trykk <strong>"+ Merde"</strong> for å legge til merder under hver silo.</li>
+      <li>Kalkulatoren summerer forbruket og ganger det med bufferfaktoren.</li>
+      <li>Resultatet vises som totalvekt og antall sekker som må bestilles.</li>
+      <li>Trykk på <strong>"Vis utregning"</strong> for å se detaljer per silo.</li>
+    </ul>
+
+    <p className="mb-2 font-semibold">Hva betyr bufferfaktor?</p>
+    <p className="mb-4">
+      Fiskens biomasse øker når den fôres, som gjør at forbruket vokser over tid. Bufferfaktoren tar høyde for denne veksten. 
+      For eksempel, hvis bufferfaktoren er <strong>1.2</strong>, betyr det at det reelle behovet økes med 20 % – for å unngå underbestilling i perioden.
+    </p>
+
+    <p className="mb-2 font-semibold">Hvorfor rundes det til 750 kg?</p>
+    <p>
+      Fôr leveres i bulksekker på 750 kg, og det må bestilles i hele sekker.
+      Kalkulatoren runder derfor opp til nærmeste hele sekk. 
+      Små avvik kan forekomme, men disse er innenfor toleransegrensen.
+    </p>
+    
+  </div>
+)}
     </div>
   );
 }
