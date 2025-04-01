@@ -1,13 +1,13 @@
 {
   "files": {
-    "main.css": "/kalkis2/static/css/main.c047d62e.css",
-    "main.js": "/kalkis2/static/js/main.048f0f96.js",
+    "main.css": "/kalkis2/static/css/main.fd1b0ac7.css",
+    "main.js": "/kalkis2/static/js/main.ccd3d145.js",
     "index.html": "/kalkis2/index.html",
-    "main.c047d62e.css.map": "/kalkis2/static/css/main.c047d62e.css.map",
-    "main.048f0f96.js.map": "/kalkis2/static/js/main.048f0f96.js.map"
+    "main.fd1b0ac7.css.map": "/kalkis2/static/css/main.fd1b0ac7.css.map",
+    "main.ccd3d145.js.map": "/kalkis2/static/js/main.ccd3d145.js.map"
   },
   "entrypoints": [
-    "static/css/main.c047d62e.css",
-    "static/js/main.048f0f96.js"
+    "static/css/main.fd1b0ac7.css",
+    "static/js/main.ccd3d145.js"
   ]
 }
